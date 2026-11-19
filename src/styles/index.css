@@ -1,0 +1,240 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'katex/dist/katex.min.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Spooky design tokens — CSS-first Tailwind v4, OKLCH.
+ * One accent ("ion amber") + the cyclic phase colormap form the colour language.
+ * Light = warm physics notebook (paper, graphite). Dark = midnight physics lab (blue-black ink, glowing glass).
+ */
+:root {
+  --radius: 0.375rem;
+
+  /* light — "buku catatan fisika" */
+  --background: oklch(0.968 0.012 84);
+  --background-deep: oklch(0.945 0.016 82);
+  --foreground: oklch(0.24 0.018 262);
+  --card: oklch(0.982 0.009 86);
+  --card-foreground: oklch(0.24 0.018 262);
+  --popover: oklch(0.985 0.008 86);
+  --popover-foreground: oklch(0.24 0.018 262);
+  --primary: oklch(0.52 0.15 48);
+  --primary-foreground: oklch(0.985 0.01 85);
+  --secondary: oklch(0.925 0.016 82);
+  --secondary-foreground: oklch(0.27 0.018 262);
+  --muted: oklch(0.93 0.014 82);
+  --muted-foreground: oklch(0.46 0.018 262);
+  --accent: oklch(0.91 0.03 75);
+  --accent-foreground: oklch(0.3 0.06 50);
+  --destructive: oklch(0.52 0.19 25);
+  --border: oklch(0.84 0.016 80);
+  --input: oklch(0.82 0.016 80);
+  --ring: oklch(0.6 0.14 55);
+  --grid-line: oklch(0.6 0.03 240 / 0.09);
+  --grid-line-strong: oklch(0.6 0.04 240 / 0.16);
+  --ink: oklch(0.3 0.02 262);
+  --glow: oklch(0.6 0.15 50 / 0.25);
+  --shadow-color: 30 20% 30%;
+  --scene-bg: oklch(0.955 0.014 83);
+}
+
+.dark {
+  /* dark — "lab fisika tengah malam" */
+  --background: oklch(0.155 0.022 258);
+  --background-deep: oklch(0.12 0.02 258);
+  --foreground: oklch(0.935 0.012 85);
+  --card: oklch(0.19 0.026 258);
+  --card-foreground: oklch(0.935 0.012 85);
+  --popover: oklch(0.205 0.028 258);
+  --popover-foreground: oklch(0.935 0.012 85);
+  --primary: oklch(0.82 0.145 74);
+  --primary-foreground: oklch(0.18 0.03 258);
+  --secondary: oklch(0.24 0.028 258);
+  --secondary-foreground: oklch(0.92 0.012 85);
+  --muted: oklch(0.23 0.025 258);
+  --muted-foreground: oklch(0.72 0.022 250);
+  --accent: oklch(0.29 0.04 258);
+  --accent-foreground: oklch(0.9 0.08 78);
+  --destructive: oklch(0.68 0.18 25);
+  --border: oklch(0.31 0.03 258);
+  --input: oklch(0.34 0.03 258);
+  --ring: oklch(0.78 0.13 74);
+  --grid-line: oklch(0.7 0.05 250 / 0.045);
+  --grid-line-strong: oklch(0.7 0.06 250 / 0.085);
+  --ink: oklch(0.9 0.02 85);
+  --glow: oklch(0.82 0.145 74 / 0.3);
+  --shadow-color: 230 50% 2%;
+  --scene-bg: oklch(0.14 0.022 258);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-deep: var(--background-deep);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ink: var(--ink);
+  --color-glow: var(--glow);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+}
+
+@theme {
+  --font-display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* type scale (1.25 minor third-ish, display steps fluid) */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-display: clamp(2.75rem, 1.6rem + 5vw, 6rem);
+  --text-display--line-height: 0.95;
+  --text-display--letter-spacing: -0.022em;
+  --text-title: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+  --text-title--line-height: 1.02;
+  --text-title--letter-spacing: -0.025em;
+
+  /* phase colormap anchors ("Spektra", cyclic, CVD-aware) */
+  --color-phase-0: oklch(0.8 0.13 62);
+  --color-phase-1: oklch(0.72 0.12 160);
+  --color-phase-2: oklch(0.55 0.13 265);
+  --color-phase-3: oklch(0.62 0.17 340);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-rise: rise 0.7s var(--ease-out-expo) both;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: light;
+    -webkit-tap-highlight-color: transparent;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'ss01', 'cv01';
+    min-height: 100dvh;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 30%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* notebook / lab grid paper behind pages */
+  .paper-grid {
+    background-color: var(--background);
+    background-image:
+      linear-gradient(var(--grid-line-strong) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line-strong) 1px, transparent 1px),
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size:
+      96px 96px,
+      96px 96px,
+      24px 24px,
+      24px 24px;
+    background-position: -1px -1px;
+  }
+  /* hairline panel: drawn, not glassy */
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      0 1px 0 hsl(var(--shadow-color) / 0.04),
+      0 12px 32px -18px hsl(var(--shadow-color) / 0.35);
+  }
+  .dark .panel {
+    background: color-mix(in oklch, var(--card) 92%, transparent);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.04),
+      0 16px 40px -20px hsl(var(--shadow-color) / 0.9);
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .ket-chip {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .scene-surface {
+    background: radial-gradient(120% 80% at 50% 35%, var(--background) 0%, var(--background-deep) 100%);
+  }
+  .rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border) 12%, var(--border) 88%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.katex {
+  font-size: 1.06em;
+}

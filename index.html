@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="Spooky — belajar komputasi kuantum lewat visual 3D interaktif. Bloch sphere, entanglement, sirkuit, algoritma, dan puzzle. 100% di peramban."
+    />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Spooky — komputasi kuantum dalam 3D</title>
+    <script>
+      // Apply theme + language before first paint (no flash). Mirrors src/store/settings.ts.
+      (function () {
+        var theme = 'system';
+        var lang = 'id';
+        try {
+          var raw = localStorage.getItem('spooky-settings');
+          if (raw) {
+            var s = JSON.parse(raw).state || {};
+            if (s.theme === 'light' || s.theme === 'dark' || s.theme === 'system') theme = s.theme;
+            if (s.lang === 'id' || s.lang === 'en') lang = s.lang;
+          }
+        } catch (e) {}
+        var dark =
+          theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var root = document.documentElement;
+        root.classList.toggle('dark', dark);
+        root.setAttribute('data-theme', dark ? 'dark' : 'light');
+        root.setAttribute('lang', lang);
+        root.style.backgroundColor = dark ? '#0b0f17' : '#f5f1e8';
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Spooky membutuhkan JavaScript. / Spooky needs JavaScript.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
