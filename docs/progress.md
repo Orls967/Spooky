@@ -64,3 +64,10 @@
 - Simpan/muat JSON (Zod), bagikan URL (`#/composer?c=` lz-string), ekspor diagram **SVG/PNG**, contoh siap pakai (Bell, GHZ, teleportasi, Grover, QFT, Deutsch–Jozsa).
 - Visual 3D: **Amplitude City** (InstancedMesh, tinggi = probabilitas, warna = fase Spektra, transisi halus antar langkah, tooltip hover), **Q-sphere** (lintang = bobot Hamming, ukuran ∝ √p, jari-jari berwarna fase), **Bloch per qubit** (keadaan tereduksi; panah pendek = terbelit).
 - Uji: unit store composer; e2e ketuk-taruh (Bell + step back), drag & drop, muat dari URL bersama.
+
+## Fase 6 — Algoritma
+
+- 7 walkthrough (`src/content/algorithms.ts`, teks `{ id, en }` divalidasi Zod, KaTeX inline via `RichText`): Deutsch–Jozsa, Bernstein–Vazirani, teleportasi (Bloch per qubit), superdense coding, Grover (+ panel **geometri rotasi** 2θ), QFT (+ **roda fase** per amplitudo), Shor mini N=15 (+ distribusi register penghitung, pecahan berlanjut, gcd → 3 × 5).
+- Parameter interaktif (oracle, rahasia s, keadaan pesan, bit, item ditandai & jumlah qubit, input x, basis a).
+- Navigasi langkah / putar otomatis, diagram sirkuit mini dengan sorotan tahap aktif, transisi teks GSAP (useGSAP), tombol **Buka langkah ini di Composer** (memuat sirkuit hingga tahap tsb).
+- Tampilan menormalkan fase global (amplitudo terbesar real-positif) — fase global tidak teramati, dan tanpa ini difuser Grover (= −D) membalik semua warna.

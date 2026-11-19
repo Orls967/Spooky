@@ -17,15 +17,19 @@ export function Histogram({
   height = 140,
   className,
   ariaLabel,
+  fitMax = false,
 }: {
   data: HistogramDatum[];
+  /** scale the y axis to the data instead of 0…1 */
+  fitMax?: boolean;
   total: number;
   height?: number;
   className?: string;
   ariaLabel: string;
 }) {
   const W = 100;
-  const max = Math.max(1, ...data.map((d) => Math.max(d.value / Math.max(1, total), d.expected ?? 0)));
+  const dataMax = Math.max(1e-9, ...data.map((d) => Math.max(d.value / Math.max(1, total), d.expected ?? 0)));
+  const max = fitMax ? dataMax * 1.08 : Math.max(1, dataMax);
   const y = useMemo(
     () =>
       scaleLinear()

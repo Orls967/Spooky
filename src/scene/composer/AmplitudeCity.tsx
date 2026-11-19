@@ -118,7 +118,7 @@ export function AmplitudeCity({ n, amplitudes }: { n: number; amplitudes: Float6
     return idx
       .filter((i) => smooth.tp[i] > 0.04)
       .sort((a, b) => smooth.tp[b] - smooth.tp[a])
-      .slice(0, 10);
+      .slice(0, n > 6 ? 5 : 10);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dim, n, amplitudes]);
 

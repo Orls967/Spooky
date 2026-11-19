@@ -211,3 +211,31 @@ export function hammingWeight(i: number): number {
   }
   return c;
 }
+
+/**
+ * Remove the (unobservable) global phase for display: rotate all amplitudes so the largest one
+ * (first in index order on ties) is real and positive.
+ */
+export function normalizeGlobalPhase(amps: Float64Array): Float64Array {
+  let best = 0,
+    k = 0;
+  for (let i = 0; i < amps.length / 2; i++) {
+    const m = amps[2 * i] ** 2 + amps[2 * i + 1] ** 2;
+    if (m > best + 1e-9) {
+      best = m;
+      k = i;
+    }
+  }
+  if (best === 0) return amps;
+  const mag = Math.sqrt(best);
+  const cr = amps[2 * k] / mag,
+    ci = -amps[2 * k + 1] / mag; // conj(a_k)/|a_k|
+  const out = new Float64Array(amps.length);
+  for (let i = 0; i < amps.length / 2; i++) {
+    const re = amps[2 * i],
+      im = amps[2 * i + 1];
+    out[2 * i] = re * cr - im * ci;
+    out[2 * i + 1] = re * ci + im * cr;
+  }
+  return out;
+}

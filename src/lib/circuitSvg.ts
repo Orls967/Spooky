@@ -145,3 +145,9 @@ export function downloadBlob(blob: Blob, filename: string): void {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
+
+export function diagramColors(dark: boolean): DiagramColors {
+  return dark
+    ? { paper: '#10151f', ink: '#e9e3d6', muted: '#9aa6bd', accent: '#f2b84b', box: '#161d2b' }
+    : { paper: '#f7f2e8', ink: '#272c38', muted: '#666d7b', accent: '#b4530b', box: '#fbf8f2' };
+}

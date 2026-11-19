@@ -38,6 +38,12 @@ export function stagedToCircuit(s: StagedCircuit, upToStage = s.stages.length): 
   return { qubits: s.qubits, columns };
 }
 
+/** Column index (exclusive) where each stage ends in `stagedToCircuit(s)`. */
+export function stageColumnEnds(s: StagedCircuit): number[] {
+  let acc = 0;
+  return s.stages.map((st) => (acc += packOps(s.qubits, st.ops).columns.length));
+}
+
 export type BellKind = 'phi+' | 'phi-' | 'psi+' | 'psi-';
 
 /** |β_xy⟩ = CNOT·(H⊗I)|xy⟩ : Φ+ = β00, Ψ+ = β01, Φ− = β10, Ψ− = β11. */

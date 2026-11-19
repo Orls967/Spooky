@@ -120,3 +120,14 @@ describe('measurement sampling', () => {
     expect(s.probOne(0)).toBeCloseTo(1, 12);
   });
 });
+
+describe('normalizeGlobalPhase', () => {
+  it('makes the largest amplitude real-positive without changing probabilities', async () => {
+    const { normalizeGlobalPhase } = await import('@/lib/quantum/statevector');
+    const a = Float64Array.of(0, -0.6, 0.8, 0); // −0.6i |0⟩ + 0.8 |1⟩
+    const b = normalizeGlobalPhase(a);
+    expect(b[2]).toBeCloseTo(0.8);
+    expect(b[3]).toBeCloseTo(0);
+    expect(b[0] ** 2 + b[1] ** 2).toBeCloseTo(0.36);
+  });
+});
