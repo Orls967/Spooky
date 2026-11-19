@@ -24,7 +24,7 @@ export default function BlochStudio() {
       <StudioLights />
       <BlochSphere animator={lab.animator} mixedness={lab.mixedness} />
       <AmbientDust />
-      <CameraRig />
+      <CameraRig fitRadius={1.55} />
     </SpookyCanvas>
   );
 

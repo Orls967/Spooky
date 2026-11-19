@@ -10,7 +10,7 @@ import { useSceneStore } from '@/store/scene';
  * "Mist" inside the Bloch sphere that thickens as the state becomes mixed (|r| shrinks).
  * Instanced sprites; positions swirl on the GPU with TSL (time + simplex noise), opacity ∝ mixedness.
  */
-export function DecoherenceFog({ amount, radius = 1 }: { amount: number; radius?: number }) {
+export function DecoherenceFog({ amount, radius = 1 }: { amount: number | (() => number); radius?: number }) {
   const preset = useScenePreset();
   const quality = useSceneStore((s) => s.quality);
   const count = quality === 'high' ? 1400 : quality === 'medium' ? 700 : 300;
@@ -62,7 +62,7 @@ export function DecoherenceFog({ amount, radius = 1 }: { amount: number; radius?
 
   useFrame(() => {
     // ease towards the target amount
-    const target = Math.max(0, Math.min(1, amount));
+    const target = Math.max(0, Math.min(1, typeof amount === 'function' ? amount() : amount));
     const cur = uAmount.value as number;
     const next = cur + (target - cur) * 0.08;
     uAmount.value = Math.abs(next - target) < 0.002 ? target : next;

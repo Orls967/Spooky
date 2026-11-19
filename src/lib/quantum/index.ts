@@ -10,3 +10,4 @@ export * from './bloch';
 export * from './algorithms';
 export * from './chsh';
 export * from './linalg';
+export * from './entanglement';

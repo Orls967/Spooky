@@ -22,8 +22,8 @@ export function hermitianEigenvalues(data: Float64Array, D: number): Float64Arra
   return out;
 }
 
-/** In-place cyclic Jacobi diagonalisation of a real symmetric N×N matrix. */
-export function jacobiSymmetric(a: Float64Array, N: number, maxSweeps = 60): void {
+/** In-place cyclic Jacobi diagonalisation of a real symmetric N×N matrix. Optionally accumulates eigenvectors in `v` (columns). */
+export function jacobiSymmetric(a: Float64Array, N: number, maxSweeps = 60, v?: Float64Array): void {
   for (let sweep = 0; sweep < maxSweeps; sweep++) {
     let off = 0;
     for (let p = 0; p < N; p++) for (let q = p + 1; q < N; q++) off += a[p * N + q] ** 2;
@@ -50,6 +50,76 @@ export function jacobiSymmetric(a: Float64Array, N: number, maxSweeps = 60): voi
           a[p * N + k] = c * apk - s * aqk;
           a[q * N + k] = s * apk + c * aqk;
         }
+        if (v)
+          for (let k = 0; k < N; k++) {
+            const vkp = v[k * N + p],
+              vkq = v[k * N + q];
+            v[k * N + p] = c * vkp - s * vkq;
+            v[k * N + q] = s * vkp + c * vkq;
+          }
       }
   }
+}
+
+/** Real-symmetric embedding [[A, −B], [B, A]] of a Hermitian matrix A + iB. */
+function embed(data: Float64Array, D: number): Float64Array {
+  const N = 2 * D;
+  const a = new Float64Array(N * N);
+  for (let i = 0; i < D; i++)
+    for (let j = 0; j < D; j++) {
+      const re = data[2 * (i * D + j)],
+        im = data[2 * (i * D + j) + 1];
+      a[i * N + j] = re;
+      a[(i + D) * N + (j + D)] = re;
+      a[i * N + (j + D)] = -im;
+      a[(i + D) * N + j] = im;
+    }
+  return a;
+}
+
+/**
+ * Principal square root of a Hermitian positive-semidefinite matrix. The embedding is a *-homomorphism,
+ * so √(embed(H)) = embed(√H): diagonalise the real embedding and read the complex blocks back.
+ */
+export function hermitianSqrt(data: Float64Array, D: number): Float64Array {
+  const N = 2 * D;
+  const a = embed(data, D);
+  const v = new Float64Array(N * N);
+  for (let i = 0; i < N; i++) v[i * N + i] = 1;
+  jacobiSymmetric(a, N, 80, v);
+  const lam = Array.from({ length: N }, (_, i) => Math.sqrt(Math.max(0, a[i * N + i])));
+  const out = new Float64Array(2 * D * D);
+  for (let i = 0; i < D; i++)
+    for (let j = 0; j < D; j++) {
+      let re = 0,
+        im = 0;
+      for (let k = 0; k < N; k++) {
+        re += v[i * N + k] * lam[k] * v[j * N + k];
+        im += v[(i + D) * N + k] * lam[k] * v[j * N + k];
+      }
+      out[2 * (i * D + j)] = re;
+      out[2 * (i * D + j) + 1] = im;
+    }
+  return out;
+}
+
+/** Complex D×D matrix product (interleaved, row-major). */
+export function cmatMul(a: Float64Array, b: Float64Array, D: number): Float64Array {
+  const out = new Float64Array(2 * D * D);
+  for (let i = 0; i < D; i++)
+    for (let j = 0; j < D; j++) {
+      let re = 0,
+        im = 0;
+      for (let k = 0; k < D; k++) {
+        const ar = a[2 * (i * D + k)],
+          ai = a[2 * (i * D + k) + 1],
+          br = b[2 * (k * D + j)],
+          bi = b[2 * (k * D + j) + 1];
+        re += ar * br - ai * bi;
+        im += ar * bi + ai * br;
+      }
+      out[2 * (i * D + j)] = re;
+      out[2 * (i * D + j) + 1] = im;
+    }
+  return out;
 }

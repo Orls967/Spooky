@@ -61,7 +61,7 @@ export const PRESETS: Record<'dark' | 'light', ScenePreset> = {
     axis: '#2c3240',
     accent: '#c2570c',
     accentEmissive: 0.9,
-    glow: '#3d6fd1',
+    glow: '#2f5fc4',
     glass: { tint: '#e9eef7', iridescence: 0.22, roughness: 0.06, attenuation: '#e8dcc6' },
     particles: '#4a5468',
     particleOpacity: 0.85,

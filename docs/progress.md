@@ -44,3 +44,12 @@
 ### Catatan verifikasi
 
 - Jalur WebGL2 diverifikasi lewat screenshot Playwright (SwiftShader). Jalur WebGPU tidak dapat diverifikasi di lingkungan headless ini (adapter SwiftShader kehilangan device bahkan untuk contoh three.js minimal); pemulihan ke WebGL2 setelah device hilang terverifikasi.
+
+## Fase 4 — Spooky Action
+
+- Ukuran keterikatan untuk keadaan campuran: **concurrence Wootters** (`entanglement.ts`) via akar Hermitian (diagonalisasi embedding real dengan vektor eigen Jacobi). Diuji: Bell = 1, produk = 0, `C = sin 2θ`, Werner `C = max(0, 1 − 3q/2)`.
+- Scene: dua bola Bloch (Alice & Bob) yang menampilkan keadaan **tereduksi** masing-masing (panah nol + kabut penuh untuk Bell), dihubungkan "benang hantu": 3 untai heliks + kabut tabung, material TSL (noise mengalir, shimmer, inti menghadap kamera, emissive untuk bloom). Opasitas = concurrence; kilat merambat dari sisi yang diukur.
+- Tab **Pasangan Bell**: 4 keadaan Bell, basis Z/X untuk Alice & Bob, ukur → runtuh + kilat, tabel korelasi 1000 pasangan + korelator E, derau depolarisasi pasangan (concurrence & purity).
+- Tab **CHSH**: aturan (KaTeX), strategi kuantum (4 slider sudut, tombol sudut optimal) vs klasik, peluang menang & nilai S teoretis eksak, ronde animasi (sumbu ukur tampil di bola; Bob dikondisikan pada hasil Alice), 2000 ronde ber-seed dengan grafik konvergensi terhadap batas 75% & Tsirelson.
+- Tab **Entropi**: keluarga `cos θ|00⟩ + sin θ|11⟩`, kurva S(θ) (d3-shape), panah tiap qubit memendek seiring keterikatan.
+- CameraRig kini menyesuaikan jarak kamera dengan rasio aspek (`fitRadius`).

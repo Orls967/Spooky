@@ -25,7 +25,7 @@ import {
   CircleGeometry,
 } from 'three/webgpu';
 import { attribute, color, float, normalView, positionViewDirection, uniform } from 'three/tsl';
-import type { Vec3 } from '@/lib/quantum/bloch';
+import { vlen, type Vec3 } from '@/lib/quantum/bloch';
 import { Tex } from '@/ui/Tex';
 import { useScenePreset, type ScenePreset } from '../theme';
 import { blochToThree } from '../coords';
@@ -176,7 +176,7 @@ export function BlochAxes({
   labelScale = 1,
 }: {
   radius?: number;
-  labels?: boolean;
+  labels?: boolean | 'poles';
   labelScale?: number;
 }) {
   const preset = useScenePreset();
@@ -200,7 +200,7 @@ export function BlochAxes({
     <group>
       <primitive object={obj} />
       {labels &&
-        AXIS_LABELS.map((l) => (
+        AXIS_LABELS.filter((l) => labels === true || l.key.startsWith('z')).map((l) => (
           <Html
             key={l.key}
             position={blochToThree(l.v).multiplyScalar(radius * 1.32)}
@@ -393,22 +393,24 @@ export function StudioFloor({ y = -1.35 }: { y?: number }) {
 
 export interface BlochSceneProps {
   animator: BlochAnimator;
-  /** 0 = pure, 1 = maximally mixed (drives the fog) */
+  /** 0 = pure, 1 = maximally mixed (drives the fog); defaults to 1 − |displayed vector| */
   mixedness?: number;
-  labels?: boolean;
+  labels?: boolean | 'poles';
   radius?: number;
   position?: [number, number, number];
   floor?: boolean;
+  children?: React.ReactNode;
 }
 
 /** Complete Bloch sphere assembly. */
 export function BlochSphere({
   animator,
-  mixedness = 0,
+  mixedness,
   labels = true,
   radius = 1,
   position,
   floor = true,
+  children,
 }: BlochSceneProps) {
   return (
     <group position={position}>
@@ -417,9 +419,10 @@ export function BlochSphere({
       <StateTrail animator={animator} radius={radius} />
       <RotationGuide animator={animator} radius={radius} />
       <StateArrow animator={animator} radius={radius} />
-      <DecoherenceFog amount={mixedness} radius={radius} />
+      <DecoherenceFog amount={mixedness ?? (() => 1 - vlen(animator.current))} radius={radius} />
       <GlassSphere radius={radius} />
       {floor && <StudioFloor y={-radius * 1.38} />}
+      {children}
     </group>
   );
 }

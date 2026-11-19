@@ -241,6 +241,24 @@ export class DensityMatrix {
     return outcome;
   }
 
+  /** Probability that qubit q reads `outcome` in the Z basis. */
+  probOf(q: number, outcome: 0 | 1): number {
+    const b = this.bit(q),
+      D = this.dim;
+    let p = 0;
+    for (let i = 0; i < D; i++) if (((i & b) !== 0) === (outcome === 1)) p += this.data[2 * (i * D + i)];
+    return p;
+  }
+
+  /** Project qubit q onto |outcome⟩ (post-selection) and renormalise. Returns the outcome's probability. */
+  project(q: number, outcome: 0 | 1): number {
+    const p = this.probOf(q, outcome);
+    if (p < 1e-15) return 0;
+    // measure() with r chosen to force the outcome
+    this.measure(q, outcome === 1 ? 0 : 1 - 1e-15);
+    return p;
+  }
+
   swap(a: number, b: number): this {
     // SWAP = CNOT(a→b) CNOT(b→a) CNOT(a→b)
     const X = gateMatrix('X');
