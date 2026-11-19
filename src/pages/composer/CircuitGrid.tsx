@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { CELL, GUTTER, opLabel, targetGlyph } from '@/lib/circuitSvg';
 import type { Circuit, Op } from '@/lib/quantum/circuit';
 import { opQubits } from '@/lib/quantum/circuit';
-import { useComposer } from '@/store/composer';
+import type { CircuitStore } from '@/store/composer';
 
 const yOf = (q: number) => q * CELL + CELL / 2;
 
@@ -47,8 +47,22 @@ function Meter() {
 }
 
 /** A placed operation (draggable, selectable). */
-function PlacedOp({ op, c, i, selected, past }: { op: Op; c: number; i: number; selected: boolean; past: boolean }) {
-  const select = useComposer((s) => s.select);
+function PlacedOp({
+  op,
+  c,
+  i,
+  selected,
+  past,
+  store,
+}: {
+  op: Op;
+  c: number;
+  i: number;
+  selected: boolean;
+  past: boolean;
+  store: CircuitStore;
+}) {
+  const select = store((s) => s.select);
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `op-${c}-${i}`,
     data: { kind: 'op', c, i },
@@ -170,14 +184,16 @@ export function CircuitGrid({
   step,
   onTapCell,
   onStep,
+  store,
 }: {
   circuit: Circuit;
   step: number;
   onTapCell: (q: number, c: number) => void;
   onStep: (s: number) => void;
+  store: CircuitStore;
 }) {
   const { t } = useTranslation();
-  const selected = useComposer((s) => s.selected);
+  const selected = store((s) => s.selected);
   const cols = circuit.columns.length;
   const width = cols * CELL;
   const height = circuit.qubits * CELL;
@@ -237,6 +253,7 @@ export function CircuitGrid({
           {circuit.columns.map((col, c) =>
             col.map((op, i) => (
               <PlacedOp
+                store={store}
                 key={`${c}-${i}`}
                 op={op}
                 c={c}

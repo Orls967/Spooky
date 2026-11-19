@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, type StateCreator } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { safeJSONStorage } from '@/lib/storage';
 import type { Circuit, Op } from '@/lib/quantum/circuit';
@@ -47,7 +47,7 @@ export function compact(c: Circuit): Circuit {
   return { qubits: c.qubits, columns: padColumns(c.columns.filter((col) => col.length > 0)) };
 }
 
-interface ComposerState {
+export interface ComposerState {
   circuit: Circuit;
   name: string;
   past: Circuit[];
@@ -82,134 +82,142 @@ interface ComposerState {
 
 const initial: Circuit = { qubits: 3, columns: padColumns([]) };
 
-export const useComposer = create<ComposerState>()(
-  persist(
-    (set, get) => {
-      const commit = (next: Circuit, extra: Partial<ComposerState> = {}) => {
-        const { circuit, past } = get();
-        set({ circuit: next, past: [...past.slice(-99), circuit], future: [], inspecting: false, ...extra });
-      };
-      return {
-        circuit: initial,
-        name: '',
-        past: [],
-        future: [],
-        selected: null,
-        inspecting: false,
-        tool: null,
-        step: null,
-        view: 'city',
-        seed: 1234,
+const editor =
+  (qubits: number): StateCreator<ComposerState> =>
+  (set, get) => {
+    const commit = (next: Circuit, extra: Partial<ComposerState> = {}) => {
+      const { circuit, past } = get();
+      set({ circuit: next, past: [...past.slice(-99), circuit], future: [], inspecting: false, ...extra });
+    };
+    return {
+      circuit: qubits === 3 ? initial : { qubits, columns: padColumns([]) },
+      name: '',
+      past: [],
+      future: [],
+      selected: null,
+      inspecting: false,
+      tool: null,
+      step: null,
+      view: 'city',
+      seed: 1234,
 
-        setCircuit: (c, opts = {}) => {
-          const next = { qubits: c.qubits, columns: padColumns(c.columns) };
-          if (opts.record === false) set({ circuit: next, selected: null, step: null });
-          else commit(next, { selected: null, step: null });
-          if (opts.name !== undefined) set({ name: opts.name });
-        },
-
-        place: (op, c) => {
-          const { circuit } = get();
-          const cols = circuit.columns.map((col) => col.slice());
-          while (cols.length <= c) cols.push([]);
-          if (!fits(cols[c], op, circuit.qubits)) {
-            // insert a fresh column at c so the gate always lands where it was dropped
-            cols.splice(c, 0, []);
-          }
-          cols[c].push(op);
-          commit({ qubits: circuit.qubits, columns: padColumns(cols) }, { selected: { c, i: cols[c].length - 1 } });
-          return true;
-        },
-
-        move: (from, to) => {
-          const { circuit } = get();
-          const op = circuit.columns[from.c]?.[from.i];
-          if (!op) return false;
-          const [lo] = opSpan(op);
-          const shift = to.q - lo;
-          const moved: Op = {
-            ...op,
-            targets: op.targets.map((q) => q + shift),
-            controls: op.controls?.map((q) => q + shift),
-            condition: op.condition,
-          };
-          if ([...moved.targets, ...(moved.controls ?? [])].some((q) => q < 0 || q >= circuit.qubits)) return false;
-          const cols = circuit.columns.map((col) => col.slice());
-          cols[from.c].splice(from.i, 1);
-          while (cols.length <= to.c) cols.push([]);
-          if (!fits(cols[to.c], moved, circuit.qubits)) cols.splice(to.c, 0, []);
-          cols[to.c].push(moved);
-          commit(
-            { qubits: circuit.qubits, columns: padColumns(cols) },
-            { selected: { c: to.c, i: cols[to.c].length - 1 } },
-          );
-          return true;
-        },
-
-        updateOp: (at, op) => {
-          const { circuit } = get();
-          const col = circuit.columns[at.c];
-          if (!col || !fits(col, op, circuit.qubits, at.i)) return false;
-          const cols = circuit.columns.map((c) => c.slice());
-          cols[at.c][at.i] = op;
-          commit({ qubits: circuit.qubits, columns: cols });
-          return true;
-        },
-
-        remove: (at) => {
-          const { circuit } = get();
-          const cols = circuit.columns.map((c) => c.slice());
-          cols[at.c]?.splice(at.i, 1);
-          commit({ qubits: circuit.qubits, columns: padColumns(cols) }, { selected: null });
-        },
-
-        setQubits: (n) => {
-          const { circuit } = get();
-          const q = Math.max(1, Math.min(MAX_COMPOSER_QUBITS, n));
-          // drop ops that touch removed wires
-          const cols = circuit.columns.map((col) =>
-            col.filter((op) => opQubits(op).every((x) => x < q) && (!op.condition || op.condition.bit < q)),
-          );
-          commit({ qubits: q, columns: padColumns(cols) }, { selected: null, step: null });
-        },
-
-        clear: () => commit({ qubits: get().circuit.qubits, columns: padColumns([]) }, { selected: null, step: null }),
-
-        undo: () => {
-          const { past, circuit, future } = get();
-          const prev = past[past.length - 1];
-          if (!prev) return;
-          set({ circuit: prev, past: past.slice(0, -1), future: [circuit, ...future], selected: null });
-        },
-        redo: () => {
-          const { past, circuit, future } = get();
-          const next = future[0];
-          if (!next) return;
-          set({ circuit: next, past: [...past, circuit], future: future.slice(1), selected: null });
-        },
-
-        select: (selected, inspect = false) => set({ selected, inspecting: inspect && selected !== null }),
-        setTool: (tool) => set({ tool }),
-        setStep: (step) => set({ step }),
-        setView: (view) => set({ view }),
-        setSeed: (seed) => set({ seed }),
-        setName: (name) => set({ name }),
-      };
-    },
-    {
-      name: 'spooky-composer',
-      storage: safeJSONStorage,
-      version: 1,
-      partialize: (s) => ({ circuit: normalizeCircuit(s.circuit), name: s.name, view: s.view, seed: s.seed }),
-      merge: (persisted, current) => {
-        const p = persisted as Partial<ComposerState> | undefined;
-        const ok = p?.circuit && CircuitSchema.safeParse(p.circuit).success && p.circuit.qubits <= MAX_COMPOSER_QUBITS;
-        return {
-          ...current,
-          ...(p ?? {}),
-          circuit: ok ? { qubits: p!.circuit!.qubits, columns: padColumns(p!.circuit!.columns) } : current.circuit,
-        };
+      setCircuit: (c, opts = {}) => {
+        const next = { qubits: c.qubits, columns: padColumns(c.columns) };
+        if (opts.record === false) set({ circuit: next, selected: null, step: null });
+        else commit(next, { selected: null, step: null });
+        if (opts.name !== undefined) set({ name: opts.name });
       },
+
+      place: (op, c) => {
+        const { circuit } = get();
+        const cols = circuit.columns.map((col) => col.slice());
+        while (cols.length <= c) cols.push([]);
+        if (!fits(cols[c], op, circuit.qubits)) {
+          // insert a fresh column at c so the gate always lands where it was dropped
+          cols.splice(c, 0, []);
+        }
+        cols[c].push(op);
+        commit({ qubits: circuit.qubits, columns: padColumns(cols) }, { selected: { c, i: cols[c].length - 1 } });
+        return true;
+      },
+
+      move: (from, to) => {
+        const { circuit } = get();
+        const op = circuit.columns[from.c]?.[from.i];
+        if (!op) return false;
+        const [lo] = opSpan(op);
+        const shift = to.q - lo;
+        const moved: Op = {
+          ...op,
+          targets: op.targets.map((q) => q + shift),
+          controls: op.controls?.map((q) => q + shift),
+          condition: op.condition,
+        };
+        if ([...moved.targets, ...(moved.controls ?? [])].some((q) => q < 0 || q >= circuit.qubits)) return false;
+        const cols = circuit.columns.map((col) => col.slice());
+        cols[from.c].splice(from.i, 1);
+        while (cols.length <= to.c) cols.push([]);
+        if (!fits(cols[to.c], moved, circuit.qubits)) cols.splice(to.c, 0, []);
+        cols[to.c].push(moved);
+        commit(
+          { qubits: circuit.qubits, columns: padColumns(cols) },
+          { selected: { c: to.c, i: cols[to.c].length - 1 } },
+        );
+        return true;
+      },
+
+      updateOp: (at, op) => {
+        const { circuit } = get();
+        const col = circuit.columns[at.c];
+        if (!col || !fits(col, op, circuit.qubits, at.i)) return false;
+        const cols = circuit.columns.map((c) => c.slice());
+        cols[at.c][at.i] = op;
+        commit({ qubits: circuit.qubits, columns: cols });
+        return true;
+      },
+
+      remove: (at) => {
+        const { circuit } = get();
+        const cols = circuit.columns.map((c) => c.slice());
+        cols[at.c]?.splice(at.i, 1);
+        commit({ qubits: circuit.qubits, columns: padColumns(cols) }, { selected: null });
+      },
+
+      setQubits: (n) => {
+        const { circuit } = get();
+        const q = Math.max(1, Math.min(MAX_COMPOSER_QUBITS, n));
+        // drop ops that touch removed wires
+        const cols = circuit.columns.map((col) =>
+          col.filter((op) => opQubits(op).every((x) => x < q) && (!op.condition || op.condition.bit < q)),
+        );
+        commit({ qubits: q, columns: padColumns(cols) }, { selected: null, step: null });
+      },
+
+      clear: () => commit({ qubits: get().circuit.qubits, columns: padColumns([]) }, { selected: null, step: null }),
+
+      undo: () => {
+        const { past, circuit, future } = get();
+        const prev = past[past.length - 1];
+        if (!prev) return;
+        set({ circuit: prev, past: past.slice(0, -1), future: [circuit, ...future], selected: null });
+      },
+      redo: () => {
+        const { past, circuit, future } = get();
+        const next = future[0];
+        if (!next) return;
+        set({ circuit: next, past: [...past, circuit], future: future.slice(1), selected: null });
+      },
+
+      select: (selected, inspect = false) => set({ selected, inspecting: inspect && selected !== null }),
+      setTool: (tool) => set({ tool }),
+      setStep: (step) => set({ step }),
+      setView: (view) => set({ view }),
+      setSeed: (seed) => set({ seed }),
+      setName: (name) => set({ name }),
+    };
+  };
+
+/** Factory: every circuit editor (Composer, puzzles) gets its own store with the same logic. */
+export function createCircuitStore(qubits = 3) {
+  return create<ComposerState>()(editor(qubits));
+}
+
+export type CircuitStore = ReturnType<typeof createCircuitStore>;
+
+export const useComposer = create<ComposerState>()(
+  persist(editor(3), {
+    name: 'spooky-composer',
+    storage: safeJSONStorage,
+    version: 1,
+    partialize: (s) => ({ circuit: normalizeCircuit(s.circuit), name: s.name, view: s.view, seed: s.seed }),
+    merge: (persisted, current) => {
+      const p = persisted as Partial<ComposerState> | undefined;
+      const ok = p?.circuit && CircuitSchema.safeParse(p.circuit).success && p.circuit.qubits <= MAX_COMPOSER_QUBITS;
+      return {
+        ...current,
+        ...(p ?? {}),
+        circuit: ok ? { qubits: p!.circuit!.qubits, columns: padColumns(p!.circuit!.columns) } : current.circuit,
+      };
     },
-  ),
+  }),
 );

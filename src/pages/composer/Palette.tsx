@@ -51,23 +51,37 @@ function Chip({ item, armed, onArm }: { item: PaletteItem; armed: boolean; onArm
   );
 }
 
-export function Palette({ armedKey, onArm }: { armedKey: string | null; onArm: (item: PaletteItem) => void }) {
+export function Palette({
+  armedKey,
+  onArm,
+  items = PALETTE,
+  title,
+}: {
+  armedKey: string | null;
+  onArm: (item: PaletteItem) => void;
+  items?: PaletteItem[];
+  title?: string;
+}) {
   const { t } = useTranslation();
   const groups: PaletteItem['group'][] = ['single', 'rotation', 'multi', 'measure'];
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="eyebrow">{t('composer.palette')}</h2>
+        <h2 className="eyebrow">{title ?? t('composer.palette')}</h2>
         <p className="hidden text-xs text-muted-foreground sm:block">{t('composer.paletteHint')}</p>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-1">
-        {groups.map((gr) => (
-          <div key={gr} className="flex shrink-0 gap-1.5 border-r border-border pr-3 last:border-r-0">
-            {PALETTE.filter((p) => p.group === gr).map((p) => (
-              <Chip key={p.key} item={p} armed={armedKey === p.key} onArm={onArm} />
-            ))}
-          </div>
-        ))}
+        {groups
+          .filter((gr) => items.some((p) => p.group === gr))
+          .map((gr) => (
+            <div key={gr} className="flex shrink-0 gap-1.5 border-r border-border pr-3 last:border-r-0">
+              {items
+                .filter((p) => p.group === gr)
+                .map((p) => (
+                  <Chip key={p.key} item={p} armed={armedKey === p.key} onArm={onArm} />
+                ))}
+            </div>
+          ))}
       </div>
     </div>
   );

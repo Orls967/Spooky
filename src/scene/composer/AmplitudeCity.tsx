@@ -36,7 +36,7 @@ export function cityLayout(n: number) {
 }
 
 /** 3D bar chart of the state vector: one tower per basis state. Height = probability, colour = phase. */
-export function AmplitudeCity({ n, amplitudes }: { n: number; amplitudes: Float64Array }) {
+export function AmplitudeCity({ n, amplitudes, ghost }: { n: number; amplitudes: Float64Array; ghost?: Float64Array }) {
   const preset = useScenePreset();
   const dim = 1 << n;
   const layout = useMemo(() => cityLayout(n), [n]);
@@ -84,6 +84,32 @@ export function AmplitudeCity({ n, amplitudes }: { n: number; amplitudes: Float6
   const col = useMemo(() => new Color(), []);
   const first = useRef(true);
 
+  // target "ghost": translucent outlines of the goal state's towers
+  const ghostMesh = useRef<InstancedMesh>(null);
+  const ghostMat = useMemo(
+    () =>
+      new MeshStandardNodeMaterial({
+        color: new Color(preset.glow),
+        transparent: true,
+        opacity: preset.name === 'dark' ? 0.16 : 0.22,
+        depthWrite: false,
+        roughness: 0.6,
+      }),
+    [preset],
+  );
+  useEffect(() => {
+    const gm = ghostMesh.current;
+    if (!gm || !ghost) return;
+    for (let i = 0; i < dim; i++) {
+      const [x, z] = layout.pos(i);
+      const p = (ghost[2 * i] ?? 0) ** 2 + (ghost[2 * i + 1] ?? 0) ** 2;
+      m4.makeScale(1.28, Math.max(0.004, p * MAX_H), 1.28).setPosition(x, 0, z);
+      gm.setMatrixAt(i, m4);
+    }
+    gm.instanceMatrix.needsUpdate = true;
+    invalidate();
+  }, [ghost, dim, layout, m4, invalidate]);
+
   useFrame(() => {
     const im = mesh.current;
     if (!im) return;
@@ -130,6 +156,7 @@ export function AmplitudeCity({ n, amplitudes }: { n: number; amplitudes: Float6
     <group position={[0, -0.9, 0]}>
       <mesh geometry={plate.slabGeo} material={plate.slab} />
       <primitive object={plate.lines} position={[0, 0.002, 0]} />
+      {ghost && <instancedMesh key={`g${dim}`} ref={ghostMesh} args={[geo, ghostMat, dim]} renderOrder={6} />}
       <instancedMesh
         key={dim}
         ref={mesh}

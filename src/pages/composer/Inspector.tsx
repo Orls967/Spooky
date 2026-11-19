@@ -7,19 +7,20 @@ import { Tex } from '@/ui/Tex';
 import { GATE_DOCS } from '@/content/gates';
 import { GATES, SINGLE_QUBIT_GATES, type SingleGateId } from '@/lib/quantum/gates';
 import type { Op } from '@/lib/quantum/circuit';
-import { useComposer, fits } from '@/store/composer';
+import { fits, type CircuitStore } from '@/store/composer';
 import { useBi } from '@/hooks/useBi';
 import { piText } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
-export function Inspector() {
+export function Inspector({ store, allowed }: { store: CircuitStore; allowed?: readonly string[] }) {
+  const puzzle = allowed !== undefined;
   const { t } = useTranslation();
   const bi = useBi();
-  const selected = useComposer((s) => s.selected);
-  const circuit = useComposer((s) => s.circuit);
-  const updateOp = useComposer((s) => s.updateOp);
-  const remove = useComposer((s) => s.remove);
+  const selected = store((s) => s.selected);
+  const circuit = store((s) => s.circuit);
+  const updateOp = store((s) => s.updateOp);
+  const remove = store((s) => s.remove);
   const [error, setError] = useState(false);
   const op = selected ? circuit.columns[selected.c]?.[selected.i] : undefined;
   if (!selected || !op) return <p className="text-sm text-muted-foreground">{t('composer.noSelection')}</p>;
@@ -65,31 +66,33 @@ export function Inspector() {
         </Button>
       </div>
 
-      {info.targets === 1 && op.gate !== 'M' && (
-        <label className="flex items-center justify-between gap-3 text-sm">
-          <span className="text-muted-foreground">U</span>
-          <Select
-            value={op.gate}
-            onValueChange={(v) => {
-              const g = v as SingleGateId;
-              const need = GATES[g].params;
-              const params = need ? Array.from({ length: need }, (_, k) => op.params?.[k] ?? Math.PI / 2) : undefined;
-              tryUpdate({ ...op, gate: g, params });
-            }}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SINGLE_QUBIT_GATES.filter((g) => g !== 'I').map((g) => (
-                <SelectItem key={g} value={g}>
-                  {GATES[g].symbol}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </label>
-      )}
+      {info.targets === 1 &&
+        op.gate !== 'M' &&
+        (!puzzle || (!op.controls?.length && SINGLE_QUBIT_GATES.filter((g) => allowed!.includes(g)).length > 1)) && (
+          <label className="flex items-center justify-between gap-3 text-sm">
+            <span className="text-muted-foreground">U</span>
+            <Select
+              value={op.gate}
+              onValueChange={(v) => {
+                const g = v as SingleGateId;
+                const need = GATES[g].params;
+                const params = need ? Array.from({ length: need }, (_, k) => op.params?.[k] ?? Math.PI / 2) : undefined;
+                tryUpdate({ ...op, gate: g, params });
+              }}
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SINGLE_QUBIT_GATES.filter((g) => g !== 'I' && (!allowed || allowed.includes(g))).map((g) => (
+                  <SelectItem key={g} value={g}>
+                    {GATES[g].symbol}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </label>
+        )}
 
       {info.tex && op.gate !== 'M' && (
         <div className="rounded-md border border-border bg-background/60 px-2 py-2 text-center">
@@ -125,7 +128,7 @@ export function Inspector() {
         </div>
       </div>
 
-      {op.gate !== 'M' && (
+      {op.gate !== 'M' && (!puzzle || !!op.controls?.length) && (
         <div className="flex flex-col gap-2">
           <span className="eyebrow">{t('composer.controls')}</span>
           <div className="flex flex-wrap gap-1.5">
@@ -184,7 +187,7 @@ export function Inspector() {
         </div>
       )}
 
-      {op.gate !== 'M' && (
+      {op.gate !== 'M' && !puzzle && (
         <label className="flex items-center justify-between gap-3 text-sm">
           <span className="text-muted-foreground">{t('composer.condition')}</span>
           <Select

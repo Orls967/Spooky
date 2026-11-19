@@ -10,6 +10,8 @@ const SpookyAction = lazy(() => import('@/pages/SpookyAction'));
 const Composer = lazy(() => import('@/pages/Composer'));
 const Algorithms = lazy(() => import('@/pages/Algorithms'));
 const AlgorithmDetail = lazy(() => import('@/pages/AlgorithmDetail'));
+const Puzzles = lazy(() => import('@/pages/Puzzles'));
+const PuzzleBoard = lazy(() => import('@/pages/PuzzleBoard'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 export function App() {
@@ -24,7 +26,8 @@ export function App() {
           <Route path="composer" element={<Composer />} />
           <Route path="algorithms" element={<Algorithms />} />
           <Route path="algorithms/:id" element={<AlgorithmDetail />} />
-          <Route path="puzzles/*" element={<ModuleStub module="puzzles" />} />
+          <Route path="puzzles" element={<Puzzles />} />
+          <Route path="puzzles/:id" element={<PuzzleBoard />} />
           <Route path="glossary" element={<ModuleStub module="glossary" />} />
           <Route path="about" element={<ModuleStub module="about" />} />
           <Route path="*" element={<NotFound />} />

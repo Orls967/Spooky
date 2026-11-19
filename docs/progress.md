@@ -71,3 +71,12 @@
 - Parameter interaktif (oracle, rahasia s, keadaan pesan, bit, item ditandai & jumlah qubit, input x, basis a).
 - Navigasi langkah / putar otomatis, diagram sirkuit mini dengan sorotan tahap aktif, transisi teks GSAP (useGSAP), tombol **Buka langkah ini di Composer** (memuat sirkuit hingga tahap tsb).
 - Tampilan menormalkan fase global (amplitudo terbesar real-positif) — fase global tidak teramati, dan tanpa ini difuser Grover (= −D) membalik semua warna.
+
+## Fase 7 — Puzzle
+
+- 22 level dalam 3 bab (1, 2, 3 qubit) — `src/content/puzzles.ts` (teks dwibahasa divalidasi Zod). Target didefinisikan oleh sirkuit referensi, sehingga keadaan target selalu tepat; KaTeX target ditulis tangan untuk tampilan.
+- Validator murni `src/lib/puzzle.ts`: fidelitas `|⟨target|ψ⟩|² ≥ 0.999` (fase global diabaikan), kendala gerbang yang diizinkan (CNOT/CZ/Toffoli/controlled-U dipetakan ke kuncinya), bintang: ★★★ bila gerbang ≤ par **dan** kedalaman ≤ par-kedalaman, ★★ bila ≤ par+2, ★ bila terselesaikan.
+- Uji unit: setiap level diselesaikan oleh solusi referensinya dengan tepat par gerbang & kedalaman (3 bintang), sirkuit kosong tidak pernah menyelesaikan, gerbang terlarang ditolak, ambang 0.999.
+- Store sirkuit dijadikan factory (`createCircuitStore`) sehingga editor puzzle memakai grid, dnd-kit, mode ketuk & inspektor yang sama dengan Composer (inspektor mode puzzle menyembunyikan opsi yang tak relevan).
+- Papan puzzle: target (KaTeX + batang fase) vs keadaanmu, meter fidelitas dengan garis ambang, petunjuk, 3D: bola Bloch + panah bayangan target (1 qubit) atau Amplitude City + menara bayangan target (2–3 qubit); banner berhasil beranimasi GSAP.
+- Progres (bintang terbaik) disimpan di localStorage dengan try/catch; level terbuka berurutan.

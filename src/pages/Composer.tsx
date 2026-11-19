@@ -231,14 +231,14 @@ export default function Composer() {
           )}
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
             <div className="panel flex min-w-0 flex-col gap-2 p-3">
-              <CircuitGrid circuit={circuit} step={step} onTapCell={onTapCell} onStep={onStep} />
+              <CircuitGrid circuit={circuit} step={step} onTapCell={onTapCell} onStep={onStep} store={useComposer} />
               {used === 0 && <p className="px-1 text-xs text-muted-foreground">{t('composer.emptyCircuit')}</p>}
               <StepControls step={step} total={used} onStep={onStep} />
             </div>
             {desktop ? (
               <div className="panel p-4">
                 <h2 className="eyebrow mb-3">{t('composer.inspector')}</h2>
-                <Inspector />
+                <Inspector store={useComposer} />
               </div>
             ) : (
               <>
@@ -252,7 +252,7 @@ export default function Composer() {
                       <SheetDescription className="sr-only">{t('composer.noSelection')}</SheetDescription>
                     </SheetHeader>
                     <div className="max-h-[65dvh] overflow-y-auto p-5">
-                      <Inspector />
+                      <Inspector store={useComposer} />
                     </div>
                   </SheetContent>
                 </Sheet>
