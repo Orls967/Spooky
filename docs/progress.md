@@ -20,3 +20,12 @@
 - i18next dengan kunci bertipe; unit test memastikan kunci ID & EN identik.
 - HashRouter + lazy-load per halaman; pencarian global ⌘/Ctrl+K (cmdk).
 - GitHub Actions: lint → test → build → deploy Pages pada setiap push ke `main`.
+
+## Fase 2 — simulator
+
+- `src/lib/quantum`: state vector (≤10 qubit), katalog gerbang lengkap (I, X, Y, Z, H, S, S†, T, T†, √X, Rx/Ry/Rz, P, U3, SWAP, kontrol umum → CNOT/CZ/Toffoli/Fredkin/controlled-U), pengukuran + kondisi klasik, RNG ber-seed, sampling shots.
+- Density matrix ≤4 qubit dengan kanal depolarizing, dephasing, amplitude damping; matriks tereduksi, entropi, purity.
+- Pembangun sirkuit: Bell, Deutsch–Jozsa, Bernstein–Vazirani, teleportasi, superdense coding, Grover, QFT/QFT⁻¹, Shor N=15; permainan CHSH.
+- Zod schema + serialisasi JSON & URL (lz-string).
+- Web Worker (Comlink) `src/workers/sim.worker.ts` + klien dengan fallback ke utas utama (`src/lib/sim-client.ts`).
+- 166 unit test — lihat `docs/math.md`.
