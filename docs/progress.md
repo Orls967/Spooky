@@ -53,3 +53,14 @@
 - Tab **CHSH**: aturan (KaTeX), strategi kuantum (4 slider sudut, tombol sudut optimal) vs klasik, peluang menang & nilai S teoretis eksak, ronde animasi (sumbu ukur tampil di bola; Bob dikondisikan pada hasil Alice), 2000 ronde ber-seed dengan grafik konvergensi terhadap batas 75% & Tsirelson.
 - Tab **Entropi**: keluarga `cos θ|00⟩ + sin θ|11⟩`, kurva S(θ) (d3-shape), panah tiap qubit memendek seiring keterikatan.
 - CameraRig kini menyesuaikan jarak kamera dengan rasio aspek (`fitRadius`).
+
+## Fase 5 — Circuit Composer
+
+- Store Zustand (`src/store/composer.ts`): sirkuit berkolom, cek tumpang-tindih rentang (`fits`), sisip kolom otomatis bila sel terisi, undo/redo (100 langkah), persist ke localStorage (divalidasi Zod saat dimuat).
+- Grid DOM: drag & drop **dnd-kit** (palet → sel, gerbang → sel lain; deteksi tabrakan berbasis pointer) **dan** mode ketuk (ketuk gerbang lalu ketuk sel) untuk layar sentuh. Glyph standar: kotak, ⊕ (CNOT), titik (CZ/kontrol), × (SWAP), meter (M), label kondisi klasik.
+- Inspektor: ganti gerbang dasar (→ controlled-U umum), target, kontrol per qubit, parameter (kelipatan π/8), kondisi klasik, hapus. Di HP tampil sebagai bottom sheet saat gerbang diketuk.
+- Step-through maju/mundur/putar + playhead; header kolom bisa diklik.
+- Simulasi di **Web Worker** (Comlink) dengan debounce; shots 1024 via worker (sirkuit dengan pengukuran tengah dijalankan ulang per shot).
+- Simpan/muat JSON (Zod), bagikan URL (`#/composer?c=` lz-string), ekspor diagram **SVG/PNG**, contoh siap pakai (Bell, GHZ, teleportasi, Grover, QFT, Deutsch–Jozsa).
+- Visual 3D: **Amplitude City** (InstancedMesh, tinggi = probabilitas, warna = fase Spektra, transisi halus antar langkah, tooltip hover), **Q-sphere** (lintang = bobot Hamming, ukuran ∝ √p, jari-jari berwarna fase), **Bloch per qubit** (keadaan tereduksi; panah pendek = terbelit).
+- Uji: unit store composer; e2e ketuk-taruh (Bell + step back), drag & drop, muat dari URL bersama.

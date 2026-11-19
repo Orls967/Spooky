@@ -1,4 +1,4 @@
-import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
+import LZString from 'lz-string';
 import type { Circuit, Op } from './circuit';
 import { CircuitFileSchema, CircuitSchema, type CircuitFile } from './schema';
 
@@ -51,12 +51,12 @@ export function encodeCircuitForURL(c: Circuit): string {
       }),
     ),
   };
-  return compressToEncodedURIComponent(JSON.stringify(terse));
+  return LZString.compressToEncodedURIComponent(JSON.stringify(terse));
 }
 
 export function decodeCircuitFromURL(s: string): ParseResult<Circuit> {
   try {
-    const json = decompressFromEncodedURIComponent(s);
+    const json = LZString.decompressFromEncodedURIComponent(s);
     if (!json) return { ok: false, error: 'empty' };
     const t = JSON.parse(json) as { q: unknown; c: unknown };
     if (!Array.isArray(t.c)) return { ok: false, error: 'bad format' };

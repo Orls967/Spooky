@@ -8,6 +8,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { PageError } from './PageError';
 import { PageLoading } from './PageLoading';
 import { ScrollToTop } from './ScrollToTop';
+import { Toaster } from './Toaster';
 
 export function Layout() {
   const { t } = useTranslation();
@@ -33,6 +34,7 @@ export function Layout() {
       </div>
       <SearchCommand />
       <ScrollToTop />
+      <Toaster />
     </TooltipProvider>
   );
 }
