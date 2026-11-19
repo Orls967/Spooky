@@ -17,6 +17,22 @@ import { useResolvedTheme, useSettings } from '@/store/settings';
 import { MODULES } from './routes';
 import { useSearchEntries } from './searchEntries';
 
+/**
+ * Ranking: label prefix > label substring > keyword substring > all query words somewhere.
+ * Item values are "label\u0000id" so equal labels stay distinct.
+ */
+function rank(value: string, search: string, keywords?: string[]): number {
+  const q = search.trim().toLowerCase();
+  if (!q) return 1;
+  const label = value.split('\u0000')[0].toLowerCase();
+  const kw = (keywords ?? []).join(' ').toLowerCase();
+  if (label.startsWith(q)) return 1;
+  if (label.includes(q)) return 0.85;
+  if (kw.includes(q)) return 0.6;
+  const words = q.split(/\s+/);
+  return words.every((w) => label.includes(w) || kw.includes(w)) ? 0.3 : 0;
+}
+
 export function SearchCommand() {
   const { t } = useTranslation();
   const open = useUI((s) => s.searchOpen);
@@ -41,7 +57,13 @@ export function SearchCommand() {
   };
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen} title={t('search.title')} description={t('header.searchHint')}>
+    <CommandDialog
+      open={open}
+      onOpenChange={setOpen}
+      title={t('search.title')}
+      description={t('header.searchHint')}
+      filter={rank}
+    >
       <CommandInput placeholder={t('search.placeholder')} />
       <CommandList>
         <CommandEmpty>{t('search.empty')}</CommandEmpty>
@@ -49,7 +71,8 @@ export function SearchCommand() {
           {MODULES.map((m) => (
             <CommandItem
               key={m.key}
-              value={`${t(`nav.${m.key}`)} ${t(`modules.${m.key}`)}`}
+              value={`${t(`nav.${m.key}`)}\u0000${m.key}`}
+              keywords={[t(`modules.${m.key}`)]}
               onSelect={() => go(m.path)}
             >
               <m.icon />
@@ -64,7 +87,12 @@ export function SearchCommand() {
         {groups.map((g) => (
           <CommandGroup key={g.heading} heading={g.heading}>
             {g.items.map((it) => (
-              <CommandItem key={it.id} value={`${it.label} ${it.keywords ?? ''}`} onSelect={() => go(it.path)}>
+              <CommandItem
+                key={it.id}
+                value={`${it.label}\u0000${it.id}`}
+                keywords={[it.keywords ?? '', it.hint ?? '']}
+                onSelect={() => go(it.path)}
+              >
                 <g.icon />
                 <span className="flex min-w-0 flex-col">
                   <span>{it.label}</span>
@@ -77,7 +105,8 @@ export function SearchCommand() {
         <CommandSeparator />
         <CommandGroup heading={t('search.groupActions')}>
           <CommandItem
-            value="theme tema dark light gelap terang"
+            value={`${t('search.toggleTheme')}\u0000theme`}
+            keywords={['theme tema dark light gelap terang']}
             onSelect={() => {
               useSettings.getState().setTheme(useResolvedTheme.getState().resolved === 'dark' ? 'light' : 'dark');
               setOpen(false);
@@ -86,7 +115,8 @@ export function SearchCommand() {
             <SunMoon /> {t('search.toggleTheme')}
           </CommandItem>
           <CommandItem
-            value="language bahasa english indonesia"
+            value={`${t('search.toggleLang')}\u0000lang`}
+            keywords={['language bahasa english indonesia']}
             onSelect={() => {
               const s = useSettings.getState();
               s.setLang(s.lang === 'id' ? 'en' : 'id');

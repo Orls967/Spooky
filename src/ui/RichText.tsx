@@ -1,7 +1,38 @@
-import { Fragment, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { Tex } from './Tex';
 import { cn } from '@/lib/utils';
-import { GlossaryAutoLink } from './glossaryLink';
+import { GlossaryTerm, glossaryMatcher } from './glossaryLink';
+import { linkify } from '@/lib/glossaryMatcher';
+import { useSettings } from '@/store/settings';
+
+type Piece =
+  { kind: 'text'; text: string; slug?: string } | { kind: 'tex'; math: string } | { kind: 'strong'; text: string };
+type Block = { kind: 'display'; math: string } | { kind: 'p'; pieces: Piece[] };
+
+/** Pure parser: paragraphs → pieces, with glossary links on the first mention of each term. */
+function parse(text: string, link: ((s: string) => { text: string; slug?: string }[]) | null): Block[] {
+  return text.split(/\n\s*\n/).map((p): Block => {
+    const display = /^\s*\$\$([\s\S]+)\$\$\s*$/.exec(p);
+    if (display) return { kind: 'display', math: display[1] };
+    const pieces: Piece[] = [];
+    const re = /\$([^$]+)\$|\*\*([^*]+)\*\*/g;
+    let last = 0;
+    let m: RegExpExecArray | null;
+    const pushText = (s: string) => {
+      if (!s) return;
+      if (link) for (const seg of link(s)) pieces.push({ kind: 'text', ...seg });
+      else pieces.push({ kind: 'text', text: s });
+    };
+    while ((m = re.exec(p))) {
+      pushText(p.slice(last, m.index));
+      if (m[1] !== undefined) pieces.push({ kind: 'tex', math: m[1] });
+      else pieces.push({ kind: 'strong', text: m[2] });
+      last = re.lastIndex;
+    }
+    pushText(p.slice(last));
+    return { kind: 'p', pieces };
+  });
+}
 
 /**
  * Tiny markup for bilingual content:
@@ -12,49 +43,41 @@ export function RichText({
   text,
   className,
   autoLink = true,
+  exclude,
 }: {
   text: string;
   className?: string;
   autoLink?: boolean;
+  /** glossary slug that must not link to itself */
+  exclude?: string;
 }) {
-  const seen = new Set<string>();
-  const paras = text.split(/\n\s*\n/);
+  const lang = useSettings((s) => s.lang);
+  const blocks = useMemo(() => {
+    if (!autoLink) return parse(text, null);
+    const seen = new Set<string>(exclude ? [exclude] : []);
+    const matcher = glossaryMatcher(lang);
+    return parse(text, (s) => linkify(s, matcher, seen));
+  }, [text, autoLink, exclude, lang]);
   return (
     <div className={cn('flex flex-col gap-3', className)}>
-      {paras.map((p, i) => {
-        const display = /^\s*\$\$([\s\S]+)\$\$\s*$/.exec(p);
-        if (display) return <Tex key={i} math={display[1]} display className="py-1" />;
-        return <p key={i}>{renderInline(p, autoLink ? seen : null)}</p>;
-      })}
+      {blocks.map((b, i) =>
+        b.kind === 'display' ? (
+          <Tex key={i} math={b.math} display className="py-1" />
+        ) : (
+          <p key={i}>
+            {b.pieces.map((pc, k): ReactNode => {
+              if (pc.kind === 'tex') return <Tex key={k} math={pc.math} />;
+              if (pc.kind === 'strong')
+                return (
+                  <strong key={k} className="font-semibold text-foreground">
+                    {pc.text}
+                  </strong>
+                );
+              return pc.slug ? <GlossaryTerm key={k} slug={pc.slug} text={pc.text} /> : <span key={k}>{pc.text}</span>;
+            })}
+          </p>
+        ),
+      )}
     </div>
   );
-}
-
-function renderInline(s: string, seen: Set<string> | null): ReactNode[] {
-  const out: ReactNode[] = [];
-  const re = /\$([^$]+)\$|\*\*([^*]+)\*\*/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  let k = 0;
-  while ((m = re.exec(s))) {
-    if (m.index > last)
-      out.push(
-        <Fragment key={k++}>
-          {seen ? <GlossaryAutoLink text={s.slice(last, m.index)} seen={seen} /> : s.slice(last, m.index)}
-        </Fragment>,
-      );
-    if (m[1] !== undefined) out.push(<Tex key={k++} math={m[1]} />);
-    else
-      out.push(
-        <strong key={k++} className="font-semibold text-foreground">
-          {m[2]}
-        </strong>,
-      );
-    last = re.lastIndex;
-  }
-  if (last < s.length)
-    out.push(
-      <Fragment key={k}>{seen ? <GlossaryAutoLink text={s.slice(last)} seen={seen} /> : s.slice(last)}</Fragment>,
-    );
-  return out;
 }

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Outlet, useLocation } from 'react-router';
+import { Link, Outlet, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Header } from './Header';
@@ -45,7 +45,15 @@ function Footer() {
     <footer className="border-t border-border">
       <div className="mx-auto flex max-w-[1600px] flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between lg:px-6">
         <p>{t('footer.note')}</p>
-        <p className="font-display text-sm italic">{t('footer.quote')}</p>
+        <nav className="flex items-center gap-4" aria-label={t('nav.reference')}>
+          <Link to="/glossary" className="hover:text-foreground">
+            {t('nav.glossary')}
+          </Link>
+          <Link to="/about" className="hover:text-foreground">
+            {t('nav.about')}
+          </Link>
+          <span className="font-display text-sm italic">{t('footer.quote')}</span>
+        </nav>
       </div>
     </footer>
   );

@@ -79,7 +79,6 @@ const en: LocaleShape = {
     panel: 'Panel',
     continueTo: 'Continue to',
     openInComposer: 'Open in Circuit Composer',
-    comingNext: 'Under construction',
   },
   footer: {
     note: '100% in your browser. No accounts, no tracking. An ideal classical simulator — not quantum hardware.',
@@ -320,6 +319,61 @@ const en: LocaleShape = {
     sceneLabel: '3D visualisation of the current state with a ghost of the target state',
     stars: '{{n}} stars',
     allDone: 'All levels done. You are ready for the unlimited Circuit Composer.',
+  },
+  glossary: {
+    title: 'Glossary',
+    lead: 'Terms used throughout Spooky, with clean notation. They are also auto-linked across every explanation.',
+    filter: 'Filter terms…',
+    seeAlso: 'See also',
+    explore: 'Explore in a module',
+    noResults: 'No matching terms.',
+    count: '{{n}} terms',
+  },
+  about: {
+    title: 'About Spooky',
+    lead: 'A quantum computing lab that runs entirely in your browser. Built for learning — and honest about what it can and cannot show.',
+    whatTitle: 'What this is',
+    what: 'Spooky is an ideal **classical** quantum simulator: it computes state vectors and density matrices with ordinary floating-point arithmetic and renders them in 3D. No real quantum hardware is involved.',
+    limitsTitle: 'Model limitations',
+    limits1:
+      'Ideal simulation: no gate errors, crosstalk or connectivity limits of real devices. Noise appears only when you switch it on (depolarizing, dephasing, amplitude damping — simple models, not device calibrations).',
+    limits2:
+      'Qubit limits: state vectors up to 10 qubits (1024 amplitudes) in a Web Worker; the Composer is capped at 8 qubits so the diagram and amplitude city stay readable; density matrices up to 4 qubits because their size is 4ⁿ (memory and time grow exponentially).',
+    limits3:
+      'The mini Shor uses modular multiplication pre-"compiled" for N = 15. It demonstrates period finding, not a general factoriser.',
+    limits4:
+      'Measurements use a seeded pseudo-random generator (sfc32) so they can be replayed — not true quantum randomness.',
+    limits5:
+      '3D graphics use WebGPU when available, otherwise WebGL2; devices without a GPU automatically get the low-quality path.',
+    privacyTitle: 'Privacy',
+    privacy:
+      'No backend, accounts, analytics or tracking cookies. Settings, puzzle progress and your last circuit are stored only in your browser’s localStorage. Once loaded, the app keeps working offline.',
+    sourcesTitle: 'Sources & further reading',
+    creditsTitle: 'Credits',
+    credits:
+      'Fonts: Fraunces, IBM Plex Sans, JetBrains Mono (SIL Open Font License). Libraries: three.js, React Three Fiber & drei, KaTeX, GSAP, dnd-kit, Radix/shadcn, Zustand, Zod, i18next, d3 (their respective licences). The HDR environment maps are generated procedurally by a script in the repository; all geometry is built in code.',
+    stackTitle: 'Technology',
+    name: 'Name',
+    nameBody: 'From Einstein’s phrase for quantum entanglement: "spukhafte Fernwirkung" — spooky action at a distance.',
+  },
+  intro: {
+    scroll: 'Scroll to begin',
+    s1Title: 'A coin, spinning.',
+    s1Body:
+      'While it spins in the air it is neither heads nor tails. But that is only our ignorance — a classical coin always has a definite side.',
+    s2Title: 'Now imagine a coin that truly has not decided.',
+    s2Body:
+      'That is a qubit. Its state is an arrow inside a ball: the north pole |0⟩, the south pole |1⟩, and the whole surface in between.',
+    s3Title: 'Superposition.',
+    s3Body:
+      'An arrow on the equator means 50/50 — but with a direction (phase) that decides how it will interfere later.',
+    s4Title: 'Measurement.',
+    s4Body:
+      'Once measured, the arrow snaps to one of the poles. The outcome is random; its probabilities are set by where the arrow pointed.',
+    s5Title: 'Entanglement.',
+    s5Body:
+      'Two qubits can share one state that neither has on its own. Measure one — the other instantly "knows". Einstein called it spooky action at a distance.',
+    cta: 'Enter the lab',
   },
   notFound: {
     title: 'This state is not in our Hilbert space.',

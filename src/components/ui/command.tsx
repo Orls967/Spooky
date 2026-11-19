@@ -21,14 +21,22 @@ function CommandDialog({
   title,
   description,
   children,
+  filter,
   ...props
-}: React.ComponentProps<typeof Dialog> & { title: string; description: string }) {
+}: React.ComponentProps<typeof Dialog> & {
+  title: string;
+  description: string;
+  filter?: React.ComponentProps<typeof CommandPrimitive>['filter'];
+}) {
   return (
     <Dialog {...props}>
       <DialogContent className="top-[18%] translate-y-0 overflow-hidden p-0 sm:max-w-xl" showClose={false}>
         <DialogTitle className="sr-only">{title}</DialogTitle>
         <DialogDescription className="sr-only">{description}</DialogDescription>
-        <Command className="[&_[cmdk-group-heading]]:eyebrow [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2">
+        <Command
+          filter={filter}
+          className="[&_[cmdk-group-heading]]:eyebrow [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2"
+        >
           {children}
         </Command>
       </DialogContent>

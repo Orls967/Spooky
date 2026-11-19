@@ -31,6 +31,8 @@ export interface SpookyCanvasProps {
   label: string;
   /** hide the environment map lighting (rarely needed) */
   noEnvironment?: boolean;
+  /** stop rendering entirely (e.g. scrolled out of view) */
+  paused?: boolean;
 }
 
 export function SpookyCanvas({
@@ -42,6 +44,7 @@ export function SpookyCanvas({
   alwaysRender,
   label,
   noEnvironment,
+  paused = false,
 }: SpookyCanvasProps) {
   const support = detectGraphics();
   const lowPower = useSettings((s) => s.lowPower);
@@ -84,7 +87,7 @@ export function SpookyCanvas({
           key={generation}
           gl={gl}
           dpr={isSoftwareRenderer() ? 0.75 : lowPower || effective === 'low' ? 1 : dpr}
-          frameloop={alwaysRender ? 'always' : 'demand'}
+          frameloop={paused ? 'never' : alwaysRender ? 'always' : 'demand'}
           camera={{ fov, near: 0.05, far: 100, position: cameraPosition }}
           className="!absolute inset-0 touch-none"
         >

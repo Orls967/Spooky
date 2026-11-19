@@ -80,3 +80,17 @@
 - Store sirkuit dijadikan factory (`createCircuitStore`) sehingga editor puzzle memakai grid, dnd-kit, mode ketuk & inspektor yang sama dengan Composer (inspektor mode puzzle menyembunyikan opsi yang tak relevan).
 - Papan puzzle: target (KaTeX + batang fase) vs keadaanmu, meter fidelitas dengan garis ambang, petunjuk, 3D: bola Bloch + panah bayangan target (1 qubit) atau Amplitude City + menara bayangan target (2–3 qubit); banner berhasil beranimasi GSAP.
 - Progres (bintang terbaik) disimpan di localStorage dengan try/catch; level terbuka berurutan.
+
+## Fase 8 — intro, glosarium, pencarian, Tentang, polish
+
+- **Intro scroll**: kanvas sticky + GSAP ScrollTrigger (scrub) menulis progres 0…5 yang dibaca tiap frame — semua keadaan adalah fungsi murni dari progres, sehingga menggulir balik memutar cerita mundur. Koin dibuat dari verteks bola dan ber-_morph_ (morph target + normal) kembali menjadi bola, lalu menjadi bola Bloch; dua sisi koin diwarnai lewat TSL. Kamera digeser dengan `setViewOffset` di layar lebar agar teks tidak menutupi scene. Rendering berhenti saat cerita tidak terlihat.
+- **Glosarium** 34 istilah (Zod), saring, indeks A–Z, deep-link `?t=slug` yang menyorot istilah, "lihat juga", tautan ke modul. **Auto-link**: matcher Unicode-aware (`\p{L}`) per bahasa, tautan pada kemunculan pertama tiap istilah per blok, pratinjau definisi (KaTeX) di tooltip — dipakai di semua teks algoritma, Tentang, dan glosarium sendiri.
+- **Pencarian global** Ctrl/⌘+K: modul, algoritma, istilah glosarium, level puzzle, aksi tema/bahasa; peringkat kustom (awalan label > substring > kata kunci).
+- **Tentang**: apa ini, 5 batasan model (termasuk batas qubit & alasannya), privasi, sumber, kredit, teknologi.
+- **Offline**: plugin Vite membuat `dist/sw.js` berisi daftar seluruh file build (cache-first untuk aset, network-first untuk halaman, `ignoreVary` karena import modul mengirim `Origin`). Diuji e2e: setelah kunjungan pertama, Glosarium dan Composer terbuka tanpa jaringan.
+- Uji tambahan: unit (glosarium, auto-link, kelengkapan konten dwibahasa, setiap tahap algoritma punya teks), e2e (intro scroll, glosarium, pencarian, Tentang, offline).
+
+## Status akhir
+
+- Unit test Vitest & e2e Playwright (desktop + mobile) lulus; lint & typecheck bersih.
+- Jalur WebGL2 diverifikasi visual di semua modul; jalur WebGPU tidak dapat diverifikasi di lingkungan headless (lihat catatan Fase 3), pemulihan ke WebGL2 diverifikasi.

@@ -12,6 +12,7 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}/Spooky/`,
     trace: 'off',
+    serviceWorkers: 'block',
   },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'], channel: undefined } },

@@ -78,7 +78,6 @@ const id = {
     panel: 'Panel',
     continueTo: 'Lanjut ke',
     openInComposer: 'Buka di Circuit Composer',
-    comingNext: 'Sedang dibangun',
   },
   footer: {
     note: '100% di peramban. Tanpa akun, tanpa pelacakan. Simulator ideal klasik — bukan perangkat kuantum.',
@@ -319,6 +318,61 @@ const id = {
     sceneLabel: 'Visualisasi 3D keadaan sekarang dengan bayangan keadaan target',
     stars: '{{n}} bintang',
     allDone: 'Semua level selesai. Kamu siap untuk Circuit Composer tanpa batas.',
+  },
+  glossary: {
+    title: 'Glosarium',
+    lead: 'Istilah yang muncul di Spooky, dengan notasi yang rapi. Istilah ini juga tertaut otomatis di seluruh teks penjelasan.',
+    filter: 'Saring istilah…',
+    seeAlso: 'Lihat juga',
+    explore: 'Jelajahi di modul',
+    noResults: 'Tidak ada istilah yang cocok.',
+    count: '{{n}} istilah',
+  },
+  about: {
+    title: 'Tentang Spooky',
+    lead: 'Laboratorium komputasi kuantum yang berjalan sepenuhnya di peramban Anda. Dibuat untuk belajar — jujur tentang apa yang bisa dan tidak bisa ia tunjukkan.',
+    whatTitle: 'Apa ini',
+    what: 'Spooky adalah simulator kuantum **klasik** yang ideal: ia menghitung state vector dan matriks densitas dengan aritmetika floating-point biasa, lalu menampilkannya dalam 3D. Tidak ada perangkat kuantum nyata yang terlibat.',
+    limitsTitle: 'Batasan model',
+    limits1:
+      'Simulasi ideal: tanpa galat gerbang, crosstalk, atau batas konektivitas perangkat nyata. Derau hanya muncul bila Anda menyalakannya (depolarisasi, dephasing, peluruhan amplitudo — model sederhana, bukan kalibrasi perangkat).',
+    limits2:
+      'Batas qubit: state vector hingga 10 qubit (1024 amplitudo) di Web Worker; Composer dibatasi 8 qubit agar diagram & kota amplitudo tetap terbaca; matriks densitas hingga 4 qubit karena ukurannya 4ⁿ (memori & waktu tumbuh secara eksponensial).',
+    limits3:
+      'Shor mini memakai perkalian modular yang sudah "dikompilasi" untuk N = 15. Ini mendemonstrasikan pencarian periode, bukan pemfaktor umum.',
+    limits4:
+      'Pengukuran memakai generator acak semu ber-seed (sfc32) agar bisa diulang — bukan keacakan kuantum sejati.',
+    limits5:
+      'Grafik 3D memakai WebGPU bila tersedia, jika tidak WebGL2; perangkat tanpa GPU otomatis memakai kualitas rendah.',
+    privacyTitle: 'Privasi',
+    privacy:
+      'Tanpa backend, akun, analitik, atau cookie pelacak. Pengaturan, progres puzzle, dan sirkuit terakhir disimpan hanya di localStorage peramban Anda. Setelah dimuat, aplikasi tetap berfungsi offline.',
+    sourcesTitle: 'Sumber & bacaan lanjut',
+    creditsTitle: 'Kredit',
+    credits:
+      'Font: Fraunces, IBM Plex Sans, JetBrains Mono (SIL Open Font License). Pustaka: three.js, React Three Fiber & drei, KaTeX, GSAP, dnd-kit, Radix/shadcn, Zustand, Zod, i18next, d3 (lisensi masing-masing). Peta lingkungan HDR dibuat secara prosedural oleh skrip di repositori; semua geometri dibuat lewat kode.',
+    stackTitle: 'Teknologi',
+    name: 'Nama',
+    nameBody: 'Dari ucapan Einstein tentang keterikatan kuantum: "spukhafte Fernwirkung" — aksi seram dari kejauhan.',
+  },
+  intro: {
+    scroll: 'Gulir untuk mulai',
+    s1Title: 'Sebuah koin, sedang berputar.',
+    s1Body:
+      'Selagi berputar di udara, ia belum kepala atau ekor. Tapi itu hanya ketidaktahuan kita — koin klasik selalu punya sisi yang pasti.',
+    s2Title: 'Kini bayangkan koin yang benar-benar belum memilih.',
+    s2Body:
+      'Itulah qubit. Keadaannya adalah sebuah panah di dalam bola: kutub atas |0⟩, kutub bawah |1⟩, dan seluruh permukaan di antaranya.',
+    s3Title: 'Superposisi.',
+    s3Body:
+      'Panah di khatulistiwa berarti 50/50 — tapi dengan arah (fase) yang menentukan bagaimana ia berinterferensi kelak.',
+    s4Title: 'Pengukuran.',
+    s4Body:
+      'Begitu diukur, panah runtuh ke salah satu kutub. Hasilnya acak; probabilitasnya ditentukan oleh posisi panah.',
+    s5Title: 'Keterikatan.',
+    s5Body:
+      'Dua qubit dapat berbagi satu keadaan yang tidak dimiliki masing-masing. Ukur satu — yang lain langsung "tahu". Einstein menyebutnya aksi seram dari kejauhan.',
+    cta: 'Masuk ke laboratorium',
   },
   notFound: {
     title: 'Keadaan ini tidak ada di ruang Hilbert kami.',

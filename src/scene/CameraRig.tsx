@@ -17,6 +17,7 @@ export function CameraRig({
   intro = true,
   autoRotate = false,
   fitRadius,
+  interactive = true,
 }: {
   target?: [number, number, number];
   minDistance?: number;
@@ -24,6 +25,8 @@ export function CameraRig({
   intro?: boolean;
   autoRotate?: boolean;
   fitRadius?: number;
+  /** false = fixed camera (no orbit / wheel capture), e.g. scroll-driven scenes */
+  interactive?: boolean;
 }) {
   const camera = useThree((s) => s.camera) as unknown as PerspectiveCamera;
   const size = useThree((s) => s.size);
@@ -77,6 +80,7 @@ export function CameraRig({
 
   useEffect(() => () => void tween.current?.kill(), []);
 
+  if (!interactive) return null;
   return (
     <OrbitControls
       makeDefault
