@@ -29,3 +29,18 @@
 - Zod schema + serialisasi JSON & URL (lz-string).
 - Web Worker (Comlink) `src/workers/sim.worker.ts` + klien dengan fallback ke utas utama (`src/lib/sim-client.ts`).
 - 166 unit test — lihat `docs/math.md`.
+
+## Fase 3 — fondasi 3D & Bloch Studio
+
+- `WebGPURenderer` (three r187) lewat factory `gl` async R3F v9; fallback otomatis ke backend WebGL2. Bila device WebGPU hilang saat berjalan, canvas dipasang ulang di WebGL2 (`DEVICE_LOST_EVENT`).
+- Post-processing node `RenderPipeline`: bloom selektif via MRT `emissive`, DOF (TSL) untuk momen fokus, tone mapping AgX.
+- Environment HDR **prosedural** (`scripts/generate-hdr.mjs` → `public/hdr/*.hdr`, ±170 KiB, RLE) — tanpa aset pihak ketiga, bisa offline.
+- Latar scene digambar dengan TSL dan **dikompensasi invers AgX** (`src/scene/agx.ts`, diuji) agar warna kertas/tinta tampil persis sama dengan halaman.
+- Bloch sphere: kaca fisik (transmission, ior, clearcoat, iridescence), rim fresnel TSL, grid lintang/bujur, sumbu berlabel KaTeX, panah emisif + panduan proyeksi, jejak memudar (alpha per-vertex di TSL), sumbu rotasi saat animasi, kabut dekoherensi (sprite instanced, swirl + noise TSL), debu ambient.
+- Animasi gerbang mengikuti rotasi sebenarnya (sumbu & sudut dari `gateRotation`), antre bila gerbang ditekan beruntun; pengukuran = snap + kilat.
+- Kualitas adaptif: `PerformanceMonitor` (DPR & tier), tier `low` otomatis untuk HP lemah / renderer software (SwiftShader, llvmpipe); `frameloop="demand"` + ticker ambient yang berhenti 7 detik setelah interaksi terakhir.
+- Bloch Studio: gerbang (tooltip berisi matriks KaTeX), rotasi bersudut, slider θ/φ, keadaan (ket atau ρ), amplitudo berwarna fase + roda fase, ukur sekali, shots ber-seed + replay, histogram (d3-scale), dekoherensi (3 kanal, kekuatan, "biarkan meluruh"), riwayat + undo. Mobile: bilah gerbang + bottom sheet bertab.
+
+### Catatan verifikasi
+
+- Jalur WebGL2 diverifikasi lewat screenshot Playwright (SwiftShader). Jalur WebGPU tidak dapat diverifikasi di lingkungan headless ini (adapter SwiftShader kehilangan device bahkan untuk contoh three.js minimal); pemulihan ke WebGL2 setelah device hilang terverifikasi.

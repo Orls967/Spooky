@@ -5,6 +5,7 @@ import { ThemeController } from '@/ui/ThemeController';
 
 const Home = lazy(() => import('@/pages/Home'));
 const ModuleStub = lazy(() => import('@/pages/ModuleStub'));
+const BlochStudio = lazy(() => import('@/pages/BlochStudio'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 export function App() {
@@ -14,7 +15,7 @@ export function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="bloch" element={<ModuleStub module="bloch" />} />
+          <Route path="bloch" element={<BlochStudio />} />
           <Route path="spooky" element={<ModuleStub module="spooky" />} />
           <Route path="composer" element={<ModuleStub module="composer" />} />
           <Route path="algorithms/*" element={<ModuleStub module="algorithms" />} />
